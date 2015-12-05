@@ -6,18 +6,9 @@
   "Width for selection boarders, keep out of CSS because require calculations."
   5)
 
-(defonce board-state (r/atom (-> (game/make-board (flatten (repeatedly (* 10 10)
-                                 (partial rand-nth
-                                                  ["a" "b" "c" "d"
-                                                   "e" "f" "g" "h"
-                                                   "i" "j" "k" "l"
-                                                   "m" "n" "o" "p"
-                                                   "q" "r" "s" "t"
-                                                   "u" "v" "x" "y"
-                                                   "w" "z"]))))
+(defonce board-state (r/atom (-> (game/make-board (game/letter-seq 10))
                                  (game/add-player "foobar")
                                  (game/add-player "barbaz"))))
-                              
 
 (defonce board-players (r/atom {"foobar" {:color "red"}
                                 "barbaz" {:color "blue"}}))
