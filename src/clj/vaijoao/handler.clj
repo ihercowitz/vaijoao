@@ -29,10 +29,17 @@
      (include-js "js/app.js")]]))
 
 
+(defn join-room [request room]
+  (game-room-handler request (keyword room)))
+
 (defroutes routes
   (GET "/" [] loading-page)
   (GET "/about" [] loading-page)
-  (GET "/game/:id" [id :as req] (game-room-handler req (keyword id)))
+  (GET "/new" request 
+       (let [uuid (-> (java.util.UUID/randomUUID) str)]
+         (println "new game created on " uuid "\nTo join this room go to" (str "http://localhost:3000/game/" uuid))
+         (join-room request uuid)))
+  (GET "/game/:id" [id :as req] (join-room req id))
   
   (resources "/")
   (not-found "Not Found"))
