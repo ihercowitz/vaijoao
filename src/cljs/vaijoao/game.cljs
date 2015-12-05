@@ -96,7 +96,7 @@
   "Fetches the current word formed by the selected letters. Returns a string."
   [{:keys [letters] :as board} player]
   (let [player-selection (get-in board [:players player :selected])]
-    (string/join (map (partial get letters) player-selection))))
+    (string/join (map letters player-selection))))
 
 (comment
   (-> (make-board ["a" "b" "c" "d"])
