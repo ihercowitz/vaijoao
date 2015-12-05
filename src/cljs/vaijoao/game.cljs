@@ -55,8 +55,12 @@
   {:pre [(and (<= 0 row (dec rows)) (<= 0 col (dec cols)))]}
   (+ (* row cols) col))
 
-(defn ^:private neighbors-of
-  [{:keys [rows cols] :as board} row col]
+(defn ^:private position-of
+  [{:keys [cols letters]} index]
+  {:pre [(<= 0 index (dec (count letters)))]}
+  [(int (/ index cols)) (mod index cols)])
+
+(defn ^:private neighbors-of [{:keys [rows cols] :as board} row col]
   (letfn [(within-bounds? [[r c]] (and (<= 0 r (dec rows))
                                        (<= 0 c (dec cols))))]
     (->> [[row (inc col)] [row (dec col)] [(inc row) col] [(dec row) col]]
@@ -70,9 +74,13 @@
    empty board."
   [board player row col]
   {:pre [(contains? (:players board) player)]}
-  (let [player-selection (get-in board [:players player :selected])]
+  (let [player-selection (get-in board [:players player :selected])
+        not-yet-selected (complement (into #{} player-selection))
+        current-position (index-of board row col)
+        [l-row l-col]    (position-of board (last player-selection))]
     (or (empty? player-selection)
-        (contains? (neighbors-of board row col) (last player-selection)))))
+        (and (not-yet-selected current-position)
+             (contains? (neighbors-of board l-row l-col) current-position)))))
 
 (defn select
   "Selects a letter by it's row and column index (zero-based)"
@@ -125,9 +133,8 @@
   "Returns the sequence of sequences representing each row of letters. Include
   information about the state of a given letter (who selected if any, link
   direction etc)"
-  [{:keys [cols letters rindex]}]
-  (letfn [(pos-for [idx] [(int (/ idx cols)) (mod idx cols)])
-          (make-letter [idx letter] (let [[row col] (pos-for idx)]
+  [{:keys [cols letters rindex] :as board}]
+  (letfn [(make-letter [idx letter] (let [[row col] (position-of board idx)]
                                       {:players (get rindex idx)
                                        :letter  letter
                                        :row     row
