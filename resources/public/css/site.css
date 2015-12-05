@@ -102,4 +102,25 @@ input[type="text"]:focus {
   -moz-border-radius:48px;
   -webkit-border-radius:48px;
   border:1px solid #623F1D
-}         
+}
+
+.board {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1em;
+}
+
+.board .letter-box {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.board .selection {
+  display: inline-block;
+  border-style: solid;
+}

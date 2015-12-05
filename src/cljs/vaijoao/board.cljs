@@ -2,6 +2,10 @@
   (:require [reagent.core :as r]
             [vaijoao.game :as game]))
 
+(def ^:static selection-border-width
+  "Width for selection boarders, keep out of CSS because require calculations."
+  5)
+
 (defonce board-state (r/atom (-> (game/make-board ["d" "o" "g" "e"
                                                    "o" "a" "b" "k"
                                                    "g" "e" "m" "p"
@@ -13,28 +17,23 @@
                                 "barbaz" {:color "blue"}}))
 
 (comment
-  (swap! board-state game/select "foobar" 0 0)
+  (swap! board-state game/select "barbaz" 0 2)
   (swap! board-state game/capture-selection "foobar"))
 
 (defn ^:private wrap-with-selection [body player]
-  [:span {:class "player-selection"
-          :style {:display "inline-block"
-                  :border-width 3
-                  :border-style "solid"
+  [:span {:class "selection"
+          :style {:border-width selection-border-width
                   :border-color (get-in @board-players [player :color])}} body])
 
 (defn letter-box [letter]
-  [:span {:style {:display     "inline-block"
-                  :width       "2em"
-                  :height      "2em"
-                  :text-align  "center"
-                  :line-height "2em"}} letter])
+  [:span {:class "letter-box"} letter])
+
+(defn ^:private fill-letter-box-with-player-gap [players]
+  (* selection-border-width (- (count @board-players) (count players))))
 
 (defn board-col [{:keys [letter players]}]
-  (letfn [(fill-letter-box-with-player-gap [players]
-            (* 3 (- (count @board-players) (count players))))]
-    [:td {:style {:padding (fill-letter-box-with-player-gap players)}}
-     (reduce wrap-with-selection [letter-box letter] players)]))
+  [:td {:style {:padding (fill-letter-box-with-player-gap players)}}
+   (reduce wrap-with-selection [letter-box letter] players)])
 
 (defn board-row [row]
   [:tr
