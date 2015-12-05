@@ -10,19 +10,16 @@
                                  (game/add-player "f" "foobar" "red")
                                  (game/add-player "b" "barbaz" "blue"))))
 
-(defonce board-players (r/atom {"f" {:color "red"}
-                                "b" {:color "blue"}}))
-
 (defonce current-player (r/atom "f"))
 
 (comment
   (swap! board-state game/select "b" 0 2)
   (swap! board-state game/capture-selection "f"))
 
-(defn ^:private wrap-with-selection [body player]
+(defn ^:private wrap-with-selection [body {:keys [color]}]
   [:span {:class "selection"
           :style {:border-width selection-border-width
-                  :border-color (get-in @board-players [player :color])}} body])
+                  :border-color color}} body])
 
 (defn ^:private select-letter [state player row col]
   (if (game/available? state player row col)
@@ -34,23 +31,23 @@
           :on-click #(swap! board-state select-letter @current-player row col)}
    letter])
 
-(defn ^:private fill-letter-box-with-player-gap [players]
-  (* selection-border-width (- (count @board-players) (count players))))
+(defn ^:private fill-letter-box-with-player-gap [all-players players]
+  (* selection-border-width (- (count all-players) (count players))))
 
-(defn board-col [{:keys [letter players row col]}]
-  [:td {:style {:padding (fill-letter-box-with-player-gap players)}}
+(defn board-col [{all-players :players} {:keys [letter players row col]}]
+  [:td {:style {:padding (fill-letter-box-with-player-gap all-players players)}}
    (reduce wrap-with-selection [letter-box letter row col] players)])
 
-(defn board-row [row]
+(defn board-row [board-state row]
   [:tr
    (for [{r :row c :col :as col} row]
-     ^{:key [r c]} [board-col col])])
+     ^{:key [r c]} [board-col board-state col])])
 
 (defn game-board [board-state]
   [:table {:class "board"}
    [:tbody
     (for [[r row] (map-indexed list (game/board-seq board-state))]
-      ^{:key r} [board-row row])]])
+      ^{:key r} [board-row board-state row])]])
 
 (defn player-card [{:keys [name color score]}]
   [:li {:class "player"}

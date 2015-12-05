@@ -130,9 +130,9 @@
   "Returns the sequence of sequences representing each row of letters. Include
   information about the state of a given letter (who selected if any, link
   direction etc)"
-  [{:keys [cols letters rindex] :as board}]
+  [{:keys [cols letters rindex players] :as board}]
   (letfn [(make-letter [idx letter] (let [[row col] (position-of board idx)]
-                                      {:players (get rindex idx)
+                                      {:players (map players (get rindex idx))
                                        :letter  letter
                                        :row     row
                                        :col     col}))]
