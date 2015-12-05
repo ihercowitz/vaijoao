@@ -11,7 +11,8 @@
     {:rows     n
      :cols     n
      :letters  letters
-     :selected []}))
+     :selected []
+     :captured #{}}))
 
 (comment
   (make-board ["a" "b" "c"])                                ;; should error!
@@ -85,10 +86,18 @@
       (board-seq))
   )
 
+(defn capture-selection
+  "Blacklist and clear current selection."
+  [board]
+  (-> board
+      (update :captured conj (current-word board))
+      (update :selected empty)))
+
 (defn match?
   "Check if the current selected word matches any one from given dictionary."
-  [board dictionary]
-  (contains? dictionary (current-word board)))
+  [{:keys [captured] :as board} dictionary]
+  (let [word (current-word board)]
+    (and (not (captured word)) (contains? dictionary word))))
 
 (comment
   (def board (make-board ["d" "o" "g"
@@ -97,4 +106,14 @@
   (-> board (select 0 0) (select 1 0) (select 2 0) (match? #{"dog"})) ;; => true
   (-> board (select 0 0) (select 0 1) (select 0 2) (match? #{"dog"})) ;; => true
   (-> board (select 0 0) (select 0 1) (select 1 1) (match? #{"dog"})) ;; => false
+  (-> board (select 0 0) (select 1 0) (select 2 0) (capture-selection))
+  (-> board
+      (select 0 0)
+      (select 1 0)
+      (select 2 0)
+      (capture-selection)
+      (select 0 0)
+      (select 0 1)
+      (select 0 2)
+      (match? #{"dog"}))                                    ;; => false
   )
