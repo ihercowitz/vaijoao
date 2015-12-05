@@ -110,9 +110,11 @@
 (defn capture-selection
   "Blacklist and clear current selection."
   [board player]
-  (-> board
-      (update-in [:players player :captured] conj (current-word board player))
-      (update-in [:players player :selected] empty)))
+  (if-let [word (not-empty (current-word board player))]
+    (-> board
+        (update-in [:players player :captured] conj word)
+        (update-in [:players player :selected] empty))
+    board))
 
 (defn match?
   "Check if the current selected word matches any one from given dictionary."
@@ -146,6 +148,8 @@
       (select "foobar" 0 0)
       (select "foobar" 1 0)
       (select "foobar" 2 0)
+      (capture-selection "barbaz")
+      (capture-selection "foobar")
       (capture-selection "foobar"))
   (-> board
       (select "foobar" 0 0)
