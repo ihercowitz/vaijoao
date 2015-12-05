@@ -31,18 +31,18 @@
       [:div {:class "container"} 
        [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
         [:label {:for "id_textfield"} "Room ID: "]
-        [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:a {:href (str "/game/"@val) :class "styled-button-11"} "JOIN GAME"]]]])))
+        [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:button {:on-click #(vaijoao.utils/connect-game @val) :class "styled-button-11"} "JOIN GAME"]]]])))
 
 
 (defn new-game []
-  (let [host (-> js/window .-location .-host)
-        u (generate-uuid)]
+  (let [u (generate-uuid)
+        _ (vaijoao.utils/connect-game u)]
     [:div {:class "container"}
      [:div {:class "content"}
       [:h2 "New game will start soon.."]
-      [:label "Send the link below to challenge a friend"]
+      [:label "Send the room ID below to challenge a friend"]
       [:p 
-       [:label.board.letter-box (str "http://" host "/game/" u)]]]]))
+       [:label.board.letter-box u]]]]))
 
 (defn current-page []
   [:div [(session/get :current-page)]])
