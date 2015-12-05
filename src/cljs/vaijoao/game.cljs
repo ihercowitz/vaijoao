@@ -126,9 +126,13 @@
   information about the state of a given letter (who selected if any, link
   direction etc)"
   [{:keys [cols letters rindex]}]
-  (->> (map-indexed (fn [idx l] {:players (get rindex idx)
-                                 :letter  l}) letters)
-       (partition cols)))
+  (letfn [(pos-for [idx] [(int (/ idx cols)) (mod idx cols)])
+          (make-letter [idx letter] (let [[row col] (pos-for idx)]
+                                      {:players (get rindex idx)
+                                       :letter  letter
+                                       :row     row
+                                       :col     col}))]
+    (partition cols (map-indexed make-letter letters))))
 
 
 (comment
