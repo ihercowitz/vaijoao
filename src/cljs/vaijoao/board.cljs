@@ -11,12 +11,20 @@
     {:rows     n
      :cols     n
      :letters  letters
-     :selected []
+     :players  {}
      :captured #{}}))
+
+(defn add-player
+  "Add new player to board, with associated meta-data"
+  [board player]
+  (assoc-in board [:players player] {:selected []}))
 
 (comment
   (make-board ["a" "b" "c"])                                ;; should error!
   (make-board ["a" "b" "c" "d"])
+  (-> (make-board ["a" "b" "c" "d"])
+      (add-player "foobar")
+      (add-player "bazbar"))
   )
 
 (defn ^:private index-of
@@ -37,43 +45,49 @@
   "Checks for availability of a letter to be selected. Only letters adjacents
    with the last selected one are available. Any letter is available for an
    empty board."
-  [{:keys [selected] :as board} row col]
-  (or (empty? selected)
-      (contains? (neighbors-of board row col) (last selected))))
+  [board player row col]
+  {:pre [(contains? (:players board) player)]}
+  (let [player-selection (get-in board [:players player :selected])]
+    (or (empty? player-selection)
+        (contains? (neighbors-of board row col) (last player-selection)))))
 
 (defn select
   "Selects a letter by it's row and column index (zero-based)"
-  [board row col]
-  {:pre [(available? board row col)]}
-  (update board :selected #(conj % (index-of board row col))))
+  [board player row col]
+  {:pre [(available? board player row col)]}
+  (update-in board [:players player :selected] conj (index-of board row col)))
 
 (defn clear-selection
   "Clears the current selected letters"
-  [board]
-  (assoc board :selected []))
+  [board player]
+  (update-in board [:players player :selected] empty))
 
 (defn current-word
   "Fetches the current word formed by the selected letters. Returns a string."
-  [{:keys [selected letters]}]
-  (string/join (map (partial get letters) selected)))
+  [{:keys [letters] :as board} player]
+  (let [player-selection (get-in board [:players player :selected])]
+    (string/join (map (partial get letters) player-selection))))
 
 (comment
   (-> (make-board ["a" "b" "c" "d"])
-      (select 0 0)
-      (available? 0 1))                                     ;; => true
+      (add-player "foobar")
+      (select "foobar" 0 0)
+      (available? "foobar" 0 1))                            ;; => true
   (-> (make-board ["a" "b" "c" "d"])
-      (select 0 0)
-      (available? 1 1))                                     ;; => false
+      (add-player "foobar")
+      (select "foobar" 0 0)
+      (available? "foobar" 1 1))                            ;; => false
   (-> (make-board ["a" "b" "c" "d"])
-      (select 0 0)
-      (select 0 1)
-      (select 1 1)
-      (current-word))
+      (add-player "foobar")
+      (select "foobar" 0 0)
+      (select "foobar" 0 1)
+      (select "foobar" 1 1)
+      (current-word "foobar"))
   (-> (make-board ["a" "b" "c" "d"])
-      (select 0 0)
-      (select 0 1)
-      (clear-selection)
-      (current-word))
+      (select "foobar" 0 0)
+      (select "foobar" 0 1)
+      (clear-selection "foobar")
+      (current-word "foobar"))
   )
 
 (defn board-seq
@@ -88,32 +102,49 @@
 
 (defn capture-selection
   "Blacklist and clear current selection."
-  [board]
+  [board player]
   (-> board
-      (update :captured conj (current-word board))
-      (update :selected empty)))
+      (update :captured conj (current-word board player))
+      (update-in [:players player :selected] empty)))
 
 (defn match?
   "Check if the current selected word matches any one from given dictionary."
-  [{:keys [captured] :as board} dictionary]
-  (let [word (current-word board)]
+  [{:keys [captured] :as board} player dictionary]
+  (let [word (current-word board player)]
     (and (not (captured word)) (contains? dictionary word))))
 
 (comment
-  (def board (make-board ["d" "o" "g"
-                          "o" "x" "z"
-                          "g" "y" "k"]))
-  (-> board (select 0 0) (select 1 0) (select 2 0) (match? #{"dog"})) ;; => true
-  (-> board (select 0 0) (select 0 1) (select 0 2) (match? #{"dog"})) ;; => true
-  (-> board (select 0 0) (select 0 1) (select 1 1) (match? #{"dog"})) ;; => false
-  (-> board (select 0 0) (select 1 0) (select 2 0) (capture-selection))
+  (def board (-> (make-board ["d" "o" "g"
+                              "o" "x" "z"
+                              "g" "y" "k"])
+                 (add-player "foobar")))
   (-> board
-      (select 0 0)
-      (select 1 0)
-      (select 2 0)
-      (capture-selection)
-      (select 0 0)
-      (select 0 1)
-      (select 0 2)
-      (match? #{"dog"}))                                    ;; => false
+      (select "foobar" 0 0)
+      (select "foobar" 1 0)
+      (select "foobar" 2 0)
+      (match? "foobar" #{"dog"}))                           ;; => true
+  (-> board
+      (select "foobar" 0 0)
+      (select "foobar" 0 1)
+      (select "foobar" 0 2)
+      (match? "foobar" #{"dog"}))                           ;; => true
+  (-> board
+      (select "foobar" 0 0)
+      (select "foobar" 0 1)
+      (select "foobar" 1 1)
+      (match? "foobar" #{"dog"}))                           ;; => false
+  (-> board
+      (select "foobar" 0 0)
+      (select "foobar" 1 0)
+      (select "foobar" 2 0)
+      (capture-selection "foobar"))
+  (-> board
+      (select "foobar" 0 0)
+      (select "foobar" 1 0)
+      (select "foobar" 2 0)
+      (capture-selection "foobar")
+      (select "foobar" 0 0)
+      (select "foobar" 0 1)
+      (select "foobar" 0 2)
+      (match? "foobar" #{"dog"}))                           ;; => false
   )
