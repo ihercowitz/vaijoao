@@ -159,3 +159,23 @@ input[type="text"]:focus {
   display: inline-block;
   border-style: solid;
 }
+
+.score-board {
+  background: white;
+  border-radius: 8px;
+}
+
+.score-board ul {
+  list-style: none;
+  padding: 0;
+}
+
+.score-board li {
+  display: inline-block;
+  padding: 1em;
+}
+
+.score-board .player .score {
+  font-weight: bold;
+  margin: 0.5em;
+}

@@ -46,11 +46,27 @@
    (for [{r :row c :col :as col} row]
      ^{:key [r c]} [board-col col])])
 
-(defn board [board-state]
+(defn game-board [board-state]
   [:table {:class "board"}
    [:tbody
     (for [[r row] (map-indexed list (game/board-seq board-state))]
       ^{:key r} [board-row row])]])
 
+(defn player-card [{:keys [name color score]}]
+  [:li {:class "player"}
+   [:span {:class "name"
+           :style {:color color}}
+    name]
+   [:span {:class "score"}
+    score]])
+
+(defn score-board [{:keys [players]}]
+  [:div {:class "score-board"}
+   [:ul {:class "players"}
+    (for [[uuid player] players]
+      ^{:key uuid} [player-card player])]])
+
 (defn board-page []
-  [:div [board @board-state]])
+  [:div {:class "game"}
+   [score-board @board-state]
+   [game-board @board-state]])
