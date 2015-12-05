@@ -84,3 +84,17 @@
   (-> (make-board ["a" "b" "c" "d"])
       (board-seq))
   )
+
+(defn match?
+  "Check if the current selected word matches any one from given dictionary."
+  [board dictionary]
+  (contains? dictionary (current-word board)))
+
+(comment
+  (def board (make-board ["d" "o" "g"
+                          "o" "x" "z"
+                          "g" "y" "k"]))
+  (-> board (select 0 0) (select 1 0) (select 2 0) (match? #{"dog"})) ;; => true
+  (-> board (select 0 0) (select 0 1) (select 0 2) (match? #{"dog"})) ;; => true
+  (-> board (select 0 0) (select 0 1) (select 1 1) (match? #{"dog"})) ;; => false
+  )
