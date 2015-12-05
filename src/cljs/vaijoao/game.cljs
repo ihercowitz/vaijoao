@@ -3,15 +3,22 @@
 
 (defn make-board
   "Create a board from a sequence of letters. The sequence have to be of a
-   quadradic size"
-  [letters]
-  (let [n (Math/sqrt (count letters))]
-    (assert (integer? n)
-            (str "board must have quadradic letters, instead of " (count letters)))
-    {:rows     n
-     :cols     n
-     :letters  letters
-     :players  {}}))
+   quadradic size.
+   If a retangular board is desired, `n` could be specified to be the number of
+   letters on each column. In that case the input sequence needs to have a length
+   multiple of `n`."
+  ([letters]
+   (let [n (Math/sqrt (count letters))]
+     (assert (integer? n)
+             (str "board must have quadradic length, instead of " (count letters)))
+     (make-board n letters)))
+  ([n letters]
+   (assert (zero? (mod (count letters) n))
+           (str "board must have a length multiple of " n ", instead of " (count letters)))
+   {:rows    (/ (count letters) n)
+    :cols    n
+    :letters letters
+    :players {}}))
 
 (defn add-player
   "Add new player to board, with associated meta-data"
