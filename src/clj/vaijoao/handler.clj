@@ -6,7 +6,8 @@
             [hiccup.page :refer [include-js include-css]]
             [prone.middleware :refer [wrap-exceptions]]
             [ring.middleware.reload :refer [wrap-reload]]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [vaijoao.websocket :refer [game-room-handler]]))
 
 (def mount-target
   [:div#app
@@ -31,6 +32,7 @@
 (defroutes routes
   (GET "/" [] loading-page)
   (GET "/about" [] loading-page)
+  (GET "/game/:id" [id :as req] (game-room-handler req (keyword id)))
   
   (resources "/")
   (not-found "Not Found"))
