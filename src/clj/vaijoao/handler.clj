@@ -40,6 +40,7 @@
          (println "new game created on " uuid "\nTo join this room go to" (str "http://localhost:3000/game/" uuid))
          (join-room request uuid)))
   (GET "/game/:id" [id :as req] (join-room req id))
+  (GET "/join" [] loading-page)
   
   (resources "/")
   (not-found "Not Found"))
