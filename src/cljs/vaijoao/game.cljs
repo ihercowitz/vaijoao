@@ -61,12 +61,19 @@
   "Selects a letter by it's row and column index (zero-based)"
   [board player row col]
   {:pre [(available? board player row col)]}
-  (update-in board [:players player :selected] conj (index-of board row col)))
+  (let [selected-index (index-of board row col)]
+    (-> board
+        (update-in [:players player :selected] conj selected-index)
+        (update-in [:rindex selected-index] (fnil conj #{}) player))))
 
 (defn clear-selection
   "Clears the current selected letters"
   [board player]
-  (update-in board [:players player :selected] empty))
+  {:pre [(contains? (:players board) player)]}
+  (letfn [(clear-rindex [r] (reduce-kv #(assoc %1 %2 (disj %3 player)) {} r))]
+    (-> board
+        (update-in [:players player :selected] empty)
+        (update-in [:rindex] clear-rindex))))
 
 (defn current-word
   "Fetches the current word formed by the selected letters. Returns a string."
@@ -98,12 +105,22 @@
   )
 
 (defn board-seq
-  "Returns the sequence of sequences representing each row of letters."
-  [{:keys [cols letters]}]
-  (partition cols letters))
+  "Returns the sequence of sequences representing each row of letters. Include
+  information about the state of a given letter (who selected if any, link
+  direction etc)"
+  [{:keys [cols letters rindex]}]
+  (->> (map-indexed (fn [idx l] {:players (get rindex idx)
+                                 :letter  l}) letters)
+       (partition cols)))
+
 
 (comment
   (-> (make-board ["a" "b" "c" "d"])
+      (add-player "foobar")
+      (add-player "barbaz")
+      (select "foobar" 0 0)
+      (select "barbaz" 0 1)
+      (select "foobar" 0 1)
       (board-seq))
   )
 
@@ -113,7 +130,7 @@
   (if-let [word (not-empty (current-word board player))]
     (-> board
         (update-in [:players player :captured] conj word)
-        (update-in [:players player :selected] empty))
+        (clear-selection player))
     board))
 
 (defn match?
