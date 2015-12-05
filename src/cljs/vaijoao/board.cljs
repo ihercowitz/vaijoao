@@ -60,11 +60,19 @@
    [:span {:class "score"}
     score]])
 
+(defn ^:private captured-words [players]
+  (letfn [(make-words [{:keys [color captured]}]
+            (map (partial list color) captured))]
+    (sort-by last (mapcat make-words (vals players)))))
+
 (defn score-board [{:keys [players]}]
   [:div {:class "score-board"}
    [:ul {:class "players"}
     (for [[uuid player] players]
-      ^{:key uuid} [player-card player])]])
+      ^{:key uuid} [player-card player])]
+   [:ul {:class "captured-words"}
+    (for [[color word] (captured-words players)]
+      ^{:key word} [:li {:class "word" :style {:color color}} word])]])
 
 (defn board-page []
   [:div {:class "game"}

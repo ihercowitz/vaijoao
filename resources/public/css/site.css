@@ -172,10 +172,27 @@ input[type="text"]:focus {
 
 .score-board li {
   display: inline-block;
-  padding: 1em;
+}
+
+.score-board .players {
+  margin-bottom: 0;
+}
+
+.score-board .player {
+  margin: 1em;
 }
 
 .score-board .player .score {
   font-weight: bold;
   margin: 0.5em;
+}
+
+.score-board .captured-words {
+  margin: 0.5em;
+}
+
+.score-board .word {
+  margin-left: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
 }
