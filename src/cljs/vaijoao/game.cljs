@@ -155,6 +155,7 @@
   (if-let [word (not-empty (current-word board player))]
     (-> board
         (update-in [:players player :captured] conj word)
+        (update-in [:players player :score] inc)
         (clear-selection player))
     board))
 
