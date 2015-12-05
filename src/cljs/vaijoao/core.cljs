@@ -16,11 +16,18 @@
   [:div [:h2 "About vaijoao"]
    [:div [:a {:href "/"} "go to the home page"]]])
 
+   (defn join-input [value]
+  [:input {:type "text"
+           :value @value
+           :on-change #(reset! value (-> % .-target .-value))}])
+
 (defn join-page []
+(let [val (reagent/atom "teste")]
+ (fn []
  [:div {:class "container"} 
    [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
     [:label {:for "id_textfield"} "Room ID: "]
-   [:input {:type "text" :id "id_textfield"}] [:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:input {:type "submit" :class "styled-button-11" :value "JOIN GAME"}]]]])
+   [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:a {:href (str "/game/"@val) :class "styled-button-11"} "JOIN GAME"]]]])))
 
 (defn current-page []
   [:div [(session/get :current-page)]])
