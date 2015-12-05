@@ -7,17 +7,17 @@
   5)
 
 (defonce board-state (r/atom (-> (game/make-board (game/letter-seq 10))
-                                 (game/add-player "foobar")
-                                 (game/add-player "barbaz"))))
+                                 (game/add-player "f" "foobar" "red")
+                                 (game/add-player "b" "barbaz" "blue"))))
 
-(defonce board-players (r/atom {"foobar" {:color "red"}
-                                "barbaz" {:color "blue"}}))
+(defonce board-players (r/atom {"f" {:color "red"}
+                                "b" {:color "blue"}}))
 
-(defonce current-player (r/atom "foobar"))
+(defonce current-player (r/atom "f"))
 
 (comment
-  (swap! board-state game/select "barbaz" 0 2)
-  (swap! board-state game/capture-selection "foobar"))
+  (swap! board-state game/select "b" 0 2)
+  (swap! board-state game/capture-selection "f"))
 
 (defn ^:private wrap-with-selection [body player]
   [:span {:class "selection"

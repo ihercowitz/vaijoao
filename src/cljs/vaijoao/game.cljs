@@ -32,22 +32,19 @@
 
 (defn add-player
   "Add new player to board, with associated meta-data"
-  [board player]
-  (assoc-in board [:players player] {:selected []
-                                     :captured #{}}))
-
-(defn score
-  "Calculate current score of a given player"
-  [board player]
-  {:pre [(contains? (:players board) player)]}
-  (count (get-in board [:players player :captured])))
+  [board uuid name color]
+  (assoc-in board [:players uuid] {:name     name
+                                   :color    color
+                                   :score    0
+                                   :selected []
+                                   :captured #{}}))
 
 (comment
   (make-board ["a" "b" "c"])                                ;; should error!
   (make-board ["a" "b" "c" "d"])
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (add-player "bazbar"))
+      (add-player "f" "foobar" "red")
+      (add-player "b" "bazbar" "blue"))
   )
 
 (defn ^:private index-of
@@ -108,25 +105,25 @@
 
 (comment
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (select "foobar" 0 0)
-      (available? "foobar" 0 1))                            ;; => true
+      (add-player "f" "foobar" "red")
+      (select "f" 0 0)
+      (available? "f" 0 1))                                 ;; => true
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (select "foobar" 0 0)
-      (available? "foobar" 1 1))                            ;; => false
+      (add-player "f" "foobar" "red")
+      (select "f" 0 0)
+      (available? "f" 1 1))                                 ;; => false
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (select "foobar" 0 0)
-      (select "foobar" 0 1)
-      (select "foobar" 1 1)
-      (current-word "foobar"))
+      (add-player "f" "foobar" "red")
+      (select "f" 0 0)
+      (select "f" 0 1)
+      (select "f" 1 1)
+      (current-word "f"))                                   ;; => "abd"
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (select "foobar" 0 0)
-      (select "foobar" 0 1)
-      (clear-selection "foobar")
-      (current-word "foobar"))
+      (add-player "f" "foobar" "red")
+      (select "f" 0 0)
+      (select "f" 0 1)
+      (clear-selection "f")
+      (current-word "f"))                                   ;; => ""
   )
 
 (defn board-seq
@@ -144,11 +141,11 @@
 
 (comment
   (-> (make-board ["a" "b" "c" "d"])
-      (add-player "foobar")
-      (add-player "barbaz")
-      (select "foobar" 0 0)
-      (select "barbaz" 0 1)
-      (select "foobar" 0 1)
+      (add-player "f" "foobar" "red")
+      (add-player "b" "barbaz" "blue")
+      (select "f" 0 0)
+      (select "b" 0 1)
+      (select "f" 0 1)
       (board-seq))
   )
 
@@ -172,37 +169,37 @@
   (def board (-> (make-board ["d" "o" "g"
                               "o" "x" "z"
                               "g" "y" "k"])
-                 (add-player "foobar")
-                 (add-player "bazbar")))
+                 (add-player "f" "foobar" "red")
+                 (add-player "b" "bazbar" "blue")))
   (-> board
-      (select "foobar" 0 0)
-      (select "foobar" 1 0)
-      (select "foobar" 2 0)
-      (match? "foobar" #{"dog"}))                           ;; => true
+      (select "f" 0 0)
+      (select "f" 1 0)
+      (select "f" 2 0)
+      (match? "f" #{"dog"}))                                ;; => true
   (-> board
-      (select "foobar" 0 0)
-      (select "foobar" 0 1)
-      (select "foobar" 0 2)
-      (match? "foobar" #{"dog"}))                           ;; => true
+      (select "f" 0 0)
+      (select "f" 0 1)
+      (select "f" 0 2)
+      (match? "f" #{"dog"}))                                ;; => true
   (-> board
-      (select "foobar" 0 0)
-      (select "foobar" 0 1)
-      (select "foobar" 1 1)
-      (match? "foobar" #{"dog"}))                           ;; => false
+      (select "f" 0 0)
+      (select "f" 0 1)
+      (select "f" 1 1)
+      (match? "f" #{"dog"}))                                ;; => false
   (-> board
-      (select "foobar" 0 0)
-      (select "foobar" 1 0)
-      (select "foobar" 2 0)
-      (capture-selection "barbaz")
-      (capture-selection "foobar")
-      (capture-selection "foobar"))
+      (select "f" 0 0)
+      (select "f" 1 0)
+      (select "f" 2 0)
+      (capture-selection "b")
+      (capture-selection "f")
+      (capture-selection "f"))
   (-> board
-      (select "foobar" 0 0)
-      (select "foobar" 1 0)
-      (select "foobar" 2 0)
-      (capture-selection "foobar")
-      (select "bazbar" 0 0)
-      (select "bazbar" 0 1)
-      (select "bazbar" 0 2)
-      (match? "bazbar" #{"dog"}))                           ;; => false
+      (select "f" 0 0)
+      (select "f" 1 0)
+      (select "f" 2 0)
+      (capture-selection "f")
+      (select "b" 0 0)
+      (select "b" 0 1)
+      (select "b" 0 2)
+      (match? "b" #{"dog"}))                                ;; => false
   )
