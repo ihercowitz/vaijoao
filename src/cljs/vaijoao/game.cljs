@@ -27,7 +27,7 @@
            (str "board must have a length multiple of " n ", instead of " (count letters)))
    {:rows    (/ (count letters) n)
     :cols    n
-    :letters letters
+    :letters (vec letters)
     :players {}}))
 
 (defn add-player
