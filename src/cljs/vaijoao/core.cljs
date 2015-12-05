@@ -50,6 +50,8 @@
 ;; -------------------------
 ;; Routes
 
+(defn show-board [] (session/put! :current-page #'board-page))
+
 (secretary/defroute "/" []
   (session/put! :current-page #'home-page))
 
@@ -60,7 +62,7 @@
   (session/put! :current-page #'join-page))
 
 (secretary/defroute "/board" []
-  (session/put! :current-page #'board-page))
+  (show-board))
 
 (secretary/defroute "/new" []
   (session/put! :current-page #'new-game))

@@ -14,6 +14,9 @@
 (defn connect-game [room]
   (let [host (-> js/window .-location .-host)
         ws (js/WebSocket. (str "ws://" host "/game/" room))]
-    (set! (.-onmessage ws) (fn [e] (.log js/console (.-data e))))
+    (set! (.-onmessage ws) (fn [e] 
+                             (if (= (.-data e) "/BEGINCARNAGE")
+                               (vaijoao.core/show-board)
+                               
+                               (.log js/console (.-data e)))))
     ws))
-

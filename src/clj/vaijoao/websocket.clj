@@ -24,7 +24,9 @@
     (println "Channel: " (bean channel))
     (when-not (:closed (bean channel))
       (join-room room channel)
-      (println games))
+      (println games)
+      (when (= 2 (count (room @games)))
+        (game-play room "/BEGINCARNAGE")))
     (on-close channel (fn [status] (leave-room)))
     (on-receive channel (fn [msg] (game-play room msg)))))
 
