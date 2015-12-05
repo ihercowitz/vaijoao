@@ -43,14 +43,14 @@
 
 (defn board-row [row]
   [:tr
-   (for [col row]
-     [board-col col])])
+   (for [{r :row c :col :as col} row]
+     ^{:key [r c]} [board-col col])])
 
 (defn board [board-state]
   [:table {:class "board"}
    [:tbody
-    (for [row (game/board-seq board-state)]
-      [board-row row])]])
+    (for [[r row] (map-indexed list (game/board-seq board-state))]
+      ^{:key r} [board-row row])]])
 
 (defn board-page []
   [:div [board @board-state]])
