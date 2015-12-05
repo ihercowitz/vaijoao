@@ -11,13 +11,13 @@
     {:rows     n
      :cols     n
      :letters  letters
-     :players  {}
-     :captured #{}}))
+     :players  {}}))
 
 (defn add-player
   "Add new player to board, with associated meta-data"
   [board player]
-  (assoc-in board [:players player] {:selected []}))
+  (assoc-in board [:players player] {:selected []
+                                     :captured #{}}))
 
 (comment
   (make-board ["a" "b" "c"])                                ;; should error!
@@ -84,6 +84,7 @@
       (select "foobar" 1 1)
       (current-word "foobar"))
   (-> (make-board ["a" "b" "c" "d"])
+      (add-player "foobar")
       (select "foobar" 0 0)
       (select "foobar" 0 1)
       (clear-selection "foobar")
@@ -104,20 +105,22 @@
   "Blacklist and clear current selection."
   [board player]
   (-> board
-      (update :captured conj (current-word board player))
+      (update-in [:players player :captured] conj (current-word board player))
       (update-in [:players player :selected] empty)))
 
 (defn match?
   "Check if the current selected word matches any one from given dictionary."
-  [{:keys [captured] :as board} player dictionary]
-  (let [word (current-word board player)]
+  [{:keys [players] :as board} player dictionary]
+  (let [captured (into #{} (mapcat :captured (vals players)))
+        word     (current-word board player)]
     (and (not (captured word)) (contains? dictionary word))))
 
 (comment
   (def board (-> (make-board ["d" "o" "g"
                               "o" "x" "z"
                               "g" "y" "k"])
-                 (add-player "foobar")))
+                 (add-player "foobar")
+                 (add-player "bazbar")))
   (-> board
       (select "foobar" 0 0)
       (select "foobar" 1 0)
@@ -143,8 +146,8 @@
       (select "foobar" 1 0)
       (select "foobar" 2 0)
       (capture-selection "foobar")
-      (select "foobar" 0 0)
-      (select "foobar" 0 1)
-      (select "foobar" 0 2)
-      (match? "foobar" #{"dog"}))                           ;; => false
+      (select "bazbar" 0 0)
+      (select "bazbar" 0 1)
+      (select "bazbar" 0 2)
+      (match? "bazbar" #{"dog"}))                           ;; => false
   )
