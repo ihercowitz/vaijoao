@@ -1,7 +1,8 @@
 (ns vaijoao.repl
   (:use vaijoao.handler
         ring.server.standalone
-        [ring.middleware file-info file]))
+        [ring.middleware file-info file])
+  (:require [figwheel-sidecar.repl-api :refer [cljs-repl]]))
 
 (defonce server (atom nil))
 
@@ -30,3 +31,6 @@
 (defn stop-server []
   (.stop @server)
   (reset! server nil))
+
+(defn start-cljs-repl []
+  (cljs-repl))
