@@ -13,6 +13,8 @@
 (defonce board-players (r/atom {"foobar" {:color "red"}
                                 "barbaz" {:color "blue"}}))
 
+(defonce current-player (r/atom "foobar"))
+
 (comment
   (swap! board-state game/select "barbaz" 0 2)
   (swap! board-state game/capture-selection "foobar"))
@@ -22,15 +24,22 @@
           :style {:border-width selection-border-width
                   :border-color (get-in @board-players [player :color])}} body])
 
-(defn letter-box [letter]
-  [:span {:class "letter-box"} letter])
+(defn ^:private select-letter [state player row col]
+  (if (game/available? state player row col)
+    (game/select state player row col)
+    state))
+
+(defn letter-box [letter row col]
+  [:span {:class    "letter-box"
+          :on-click #(swap! board-state select-letter @current-player row col)}
+   letter])
 
 (defn ^:private fill-letter-box-with-player-gap [players]
   (* selection-border-width (- (count @board-players) (count players))))
 
-(defn board-col [{:keys [letter players]}]
+(defn board-col [{:keys [letter players row col]}]
   [:td {:style {:padding (fill-letter-box-with-player-gap players)}}
-   (reduce wrap-with-selection [letter-box letter] players)])
+   (reduce wrap-with-selection [letter-box letter row col] players)])
 
 (defn board-row [row]
   [:tr
