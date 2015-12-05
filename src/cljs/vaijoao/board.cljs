@@ -19,6 +19,12 @@
   (assoc-in board [:players player] {:selected []
                                      :captured #{}}))
 
+(defn score
+  "Calculate current score of a given player"
+  [board player]
+  {:pre [(contains? (:players board) player)]}
+  (count (get-in board [:players player :captured])))
+
 (comment
   (make-board ["a" "b" "c"])                                ;; should error!
   (make-board ["a" "b" "c" "d"])
