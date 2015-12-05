@@ -5,11 +5,11 @@
   "Create a board from a sequence of letters. The sequence have to be of a
    quadradic size"
   [letters]
-  (let [n (Math/sqrt (count letters))]
+  (let [n (count letters)]
     (assert (integer? n)
             (str "board must have quadradic letters, instead of " (count letters)))
-    {:rows     n
-     :cols     n
+    {:rows    10
+     :cols     10
      :letters  letters
      :players  {}}))
 

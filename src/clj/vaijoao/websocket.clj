@@ -26,7 +26,6 @@
       (join-room room channel)
       (println games))
     (on-close channel (fn [status] (leave-room)))
-    (on-receive channel (fn [msg]
-                          (game-play room msg)))))
+    (on-receive channel (fn [msg] (game-play room msg)))))
 
 
