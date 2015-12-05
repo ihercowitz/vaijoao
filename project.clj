@@ -68,10 +68,10 @@
                                                 org.clojure/core.async
                                                 org.clojure/tools.analyzer.jvm]]
                                   [org.clojure/clojurescript "1.7.170"
-                                   :exclusions [org.clojure/clojure org.clojure/tools.reader]]
+                                   :exclusions [org.clojure/clojure]]
                                   [org.clojure/tools.nrepl "0.2.12"]
                                   [com.cemerick/piggieback "0.2.1"]
-                                                                    [pjstadig/humane-test-output "0.7.0"]
+                                  [pjstadig/humane-test-output "0.7.0"]
                                   ]
 
                    :source-paths ["env/dev/clj"]
