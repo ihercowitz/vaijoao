@@ -1,4 +1,4 @@
-(ns vaijoao.board
+(ns vaijoao.game
   (:require [clojure.string :as string]))
 
 (defn make-board
