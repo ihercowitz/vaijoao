@@ -1,5 +1,5 @@
 (ns vaijoao.handler
-  (:require [compojure.core :refer [GET defroutes]]
+  (:require [compojure.core :refer [GET defroutes rfn]]
             [compojure.route :refer [not-found resources]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [hiccup.core :refer [html]]
@@ -38,11 +38,13 @@
   (GET "/new" request 
        (let [uuid (-> (java.util.UUID/randomUUID) str)]
          (println "new game created on " uuid "\nTo join this room go to" (str "http://localhost:3000/game/" uuid))
-         (join-room request uuid)))
+         (join-room request uuid)
+         uuid))
   (GET "/game/:id" [id :as req] (join-room req id))
   (GET "/join" [] loading-page)
-  
+  (GET "/teste" [] (-> (java.util.UUID/randomUUID) str))
   (resources "/")
+  
   (not-found "Not Found"))
 
 (def app
