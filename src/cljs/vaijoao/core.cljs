@@ -2,7 +2,8 @@
     (:require [reagent.core :as reagent :refer [atom]]
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
-              [accountant.core :as accountant]))
+              [accountant.core :as accountant]
+              [vaijoao.board :refer [board-page]]))
 
 ;; -------------------------
 ;; Views
@@ -10,7 +11,8 @@
 (defn home-page []
   [:div {:class "container"} 
    [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
-   [:div [:a {:href "/new"} "NEW GAME"] " | " [:a {:href "/join"} "JOIN GAME"]]]])
+   [:div [:a {:href "/new"} "NEW GAME"] " | " [:a {:href "/join"} "JOIN GAME"]]]
+   [:a {:href "/board"} "Test our new client-side board!"]])
 
 (defn about-page []
   [:div [:h2 "About vaijoao"]
@@ -43,6 +45,9 @@
 
   (secretary/defroute "/join" []
   (session/put! :current-page #'join-page))
+
+(secretary/defroute "/board" []
+  (session/put! :current-page #'board-page))
 
 ;; -------------------------
 ;; Initialize app
