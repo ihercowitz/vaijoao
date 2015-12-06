@@ -6,19 +6,16 @@
   "Width for selection boarders, keep out of CSS because require calculations."
   5)
 
-(def board-state (r/atom (-> (game/make-board (game/letter-seq 10))
-                             (game/add-player "f" "foobar" "red")
-                             (game/add-player "b" "barbaz" "blue"))))
+(def board-state (r/atom {}))
 
-
-
-(defonce current-player (r/atom "f"))
-
+(def current-player (r/atom "f"))
+(def players ["f" "b"])
 
 (defn set-board [board]
   (swap! board-state merge (-> board
-                               (game/add-player "f" "foobar" "red")
-                               (game/add-player "b" "barbaz" "blue"))))
+                               (game/add-player @current-player "You" "red")
+                               (game/add-player (first (remove #{@current-player} players)) 
+                                                  "Opponent" "blue"))))
 
 (comment
   (swap! board-state game/select "b" 0 2)
@@ -85,6 +82,6 @@
    [game-board @board-state]])
 
 (defn new-board-page [board]
-  (.log js/console board)
   (set-board board)
+  (reset! current-player (:current-player board))
   (board-page))

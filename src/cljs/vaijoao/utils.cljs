@@ -16,14 +16,16 @@
           [(keyword k) v])))
 
 
-(defn connect-game [room]
+(defn connect-game [room player]
   (let [host (-> js/window .-location .-host)
         ws (js/WebSocket. (str "ws://" host "/game/" room))]
     (set! (.-onmessage ws) (fn [e]
                              (let [json (-> (.-data e) 
                                             (js/JSON.parse) 
                                             js->clj)]
-                               (.log js/console (get json "action"))
-                               (when (= (get json "action") "INITBOARD")
-                                 (vaijoao.core/show-board (str->keyword (get-in json ["data"])))))))
+                               (when (= (get json "action") "INITBOARD")  
+                                 (let [data (assoc 
+                                             (str->keyword (get-in json ["data"]))
+                                             :current-player player)]
+                                   (vaijoao.core/show-board data))))))
     ws))

@@ -13,30 +13,32 @@
   [:div {:class "container"} 
    [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
     [:div [:a {:href "/new"} "NEW GAME"] " | " [:a {:href "/join"} "JOIN GAME"]]]
-   [:a {:href "/board"} "Test our new client-side board!"]])
+                                        ;
+   ])
 
  
 (defn about-page []
   [:div [:h2 "About vaijoao"]
    [:div [:a {:href "/"} "go to the home page"]]])
 
-   (defn join-input [value]
+(defn join-input [value]
   [:input {:type "text"
            :value @value
            :on-change #(reset! value (-> % .-target .-value))}])
 
 (defn join-page []
-  (let [val (reagent/atom "teste")]
+  (let [val (reagent/atom "")]
     (fn []
       [:div {:class "container"} 
        [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
         [:label {:for "id_textfield"} "Room ID: "]
-        [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:button {:on-click #(vaijoao.utils/connect-game @val) :class "styled-button-11"} "JOIN GAME"]]]])))
+        [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:button {:on-click #(do 
+                                                                                                                           (vaijoao.utils/connect-game @val "b")) :class "styled-button-11"} "JOIN GAME"]]]])))
 
 
 (defn new-game []
   (let [u (generate-uuid)
-        _ (vaijoao.utils/connect-game u)]
+        _ (vaijoao.utils/connect-game u "f")]
     [:div {:class "container"}
      [:div {:class "content"}
       [:h2 "New game will start soon.."]
