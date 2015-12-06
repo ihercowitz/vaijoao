@@ -1,5 +1,7 @@
 (ns vaijoao.websocket
-  (:require [org.httpkit.server :refer [send! with-channel on-receive on-close]]))
+  (:require [org.httpkit.server :refer [send! with-channel on-receive on-close]]
+            [clojure.data.json :as json]
+            [vaijoao.util :as utils]))
 
 (def games (atom {}))
 
@@ -19,14 +21,13 @@
              (swap! games assoc r))))))
 
 (defn game-room-handler [request room]
-  (println "Game room handler")
   (with-channel request channel
-    (println "Channel: " (bean channel))
     (when-not (:closed (bean channel))
       (join-room room channel)
-      (println games)
       (when (= 2 (count (room @games)))
-        (game-play room "/BEGINCARNAGE")))
+        (game-play room (json/write-str {:action "INITBOARD"
+                                         :data (utils/make-board (utils/letter-seq 10 10))}
+                                        )))) 
     (on-close channel (fn [status] (leave-room)))
     (on-receive channel (fn [msg] (game-play room msg)))))
 

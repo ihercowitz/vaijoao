@@ -10,13 +10,20 @@
                           (g) (repeatedly 3 f) "-"
                           (repeatedly 12 f)))))
 
+(defn str->keyword [data]
+  (into {} 
+        (for [[k v] data] 
+          [(keyword k) v])))
+
 
 (defn connect-game [room]
   (let [host (-> js/window .-location .-host)
         ws (js/WebSocket. (str "ws://" host "/game/" room))]
-    (set! (.-onmessage ws) (fn [e] 
-                             (if (= (.-data e) "/BEGINCARNAGE")
-                               (vaijoao.core/show-board)
-                               
-                               (.log js/console (.-data e)))))
+    (set! (.-onmessage ws) (fn [e]
+                             (let [json (-> (.-data e) 
+                                            (js/JSON.parse) 
+                                            js->clj)]
+                               (.log js/console (get json "action"))
+                               (when (= (get json "action") "INITBOARD")
+                                 (vaijoao.core/show-board (str->keyword (get-in json ["data"])))))))
     ws))

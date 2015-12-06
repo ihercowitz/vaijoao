@@ -20,7 +20,8 @@
                  [secretary "1.2.3"]
                  [venantius/accountant "0.1.5"
                   :exclusions [org.clojure/tools.reader]]
-                 [cljs-ajax "0.5.2"]]
+                 [cljs-ajax "0.5.2"]
+                 [org.clojure/data.json "0.2.6"]]
 
   :plugins [[lein-environ "1.0.1"]
             [lein-cljsbuild "1.1.1"]

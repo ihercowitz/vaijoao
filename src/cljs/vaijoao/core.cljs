@@ -3,7 +3,7 @@
             [reagent.session :as session]
             [secretary.core :as secretary :include-macros true]
             [accountant.core :as accountant]
-            [vaijoao.board :refer [board-page]]
+            [vaijoao.board :refer [board-page new-board-page]]
             [vaijoao.utils :refer [generate-uuid]]))
 
 ;; -------------------------
@@ -50,7 +50,11 @@
 ;; -------------------------
 ;; Routes
 
-(defn show-board [] (session/put! :current-page #'board-page))
+(defn show-board 
+  ([] 
+   (session/put! :current-page #'board-page))
+  ([board]
+   (session/put! :current-page #(new-board-page board))))
 
 (secretary/defroute "/" []
   (session/put! :current-page #'home-page))
