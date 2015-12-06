@@ -26,7 +26,7 @@
            :on-change #(reset! value (-> % .-target .-value))}])
 
 (defn join-page []
-  (let [val (reagent/atom "teste")]
+  (let [val (reagent/atom "")]
     (fn []
       [:div {:class "container"} 
        [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
