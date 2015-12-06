@@ -6,15 +6,15 @@
             [vaijoao.board :refer [board-page new-board-page]]
             [vaijoao.utils :refer [generate-uuid]]))
 
+(defonce ws (atom nil))
+
 ;; -------------------------
 ;; Views
 
 (defn home-page []
   [:div {:class "container"} 
    [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
-    [:div [:a {:href "/new"} "NEW GAME"] " | " [:a {:href "/join"} "JOIN GAME"]]]
-                                        ;
-   ])
+    [:div [:a {:href "/new"} "NEW GAME"] " | " [:a {:href "/join"} "JOIN GAME"]]]])
 
  
 (defn about-page []
@@ -33,12 +33,12 @@
        [:div {:class "content"} [:h2 "Welcome to VaiJoao \\o/"]
         [:label {:for "id_textfield"} "Room ID: "]
         [join-input val][:div {:class "actions"} [:a {:class "styled-button-11" :href "/"} "CANCEL"][:button {:on-click #(do 
-                                                                                                                           (vaijoao.utils/connect-game @val "b")) :class "styled-button-11"} "JOIN GAME"]]]])))
-
+                                                                                                                           (reset! ws (vaijoao.utils/connect-game @val "b"))) :class "styled-button-11"} "JOIN GAME"]]]])))
+ 
 
 (defn new-game []
-  (let [u (generate-uuid)
-        _ (vaijoao.utils/connect-game u "f")]
+  (let [u (generate-uuid)]
+    (reset! ws (vaijoao.utils/connect-game u "f"))
     [:div {:class "container"}
      [:div {:class "content"}
       [:h2 "New game will start soon.."]

@@ -20,12 +20,18 @@
   (let [host (-> js/window .-location .-host)
         ws (js/WebSocket. (str "ws://" host "/game/" room))]
     (set! (.-onmessage ws) (fn [e]
-                             (let [json (-> (.-data e) 
-                                            (js/JSON.parse) 
-                                            js->clj)]
-                               (when (= (get json "action") "INITBOARD")  
-                                 (let [data (assoc 
-                                             (str->keyword (get-in json ["data"]))
-                                             :current-player player)]
-                                   (vaijoao.core/show-board data))))))
-    ws))
+                             (.log js/console e)
+                             (let [str->js (fn [e] (-> e js/JSON.parse js->clj))
+                                   json (str->js (.-data e))
+                                   action  (get json "action")
+                                   data    (get json "data")]
+                               (cond 
+                                 (= action "INITBOARD") (vaijoao.core/show-board (assoc 
+                                                                                  (str->keyword data)
+                                                                                  :current-player player))
+                                 (= action "USERPLAY")  
+                                 (do
+                                   (println "Received data: " data)
+
+                                   (vaijoao.board/update-board (str->keyword (str->js data))))  
+                                 :else json)))) ws))

@@ -7,7 +7,7 @@
 
 (defn game-play [room msg] 
   (doseq [g (room @games)]
-    (send! g msg) ) ) 
+    (send! g (json/write-str msg)) ) ) 
 
 (defn join-room [room cli]
   (->> (conj (room @games) cli)
@@ -25,10 +25,9 @@
     (when-not (:closed (bean channel))
       (join-room room channel)
       (when (= 2 (count (room @games)))
-        (game-play room (json/write-str {:action "INITBOARD"
-                                         :data (utils/make-board (utils/letter-seq 10 10))}
-                                        )))) 
+        (game-play room  {:action "INITBOARD"
+                          :data (utils/make-board (utils/letter-seq 10 10))}))) 
     (on-close channel (fn [status] (leave-room)))
-    (on-receive channel (fn [msg] (game-play room msg)))))
+    (on-receive channel (fn [msg] (game-play room {:action "USERPLAY" :data msg})))))
 
 

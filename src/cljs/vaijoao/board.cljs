@@ -6,19 +6,23 @@
   "Width for selection boarders, keep out of CSS because require calculations."
   5)
 
-(def board-state (r/atom {}))
 
-(def current-player (r/atom "f"))
+(defonce current-player (r/atom "f"))
 (def players ["f" "b"])
+
+(defonce board-state (r/atom (-> (game/make-board (game/letter-seq 10))
+                                 (game/add-player @current-player "You" "red")
+                                 (game/add-player (first (remove #{@current-player} players)) 
+                                                  "Opponent" "blue"))))
 
 (defn set-board [board]
   (swap! board-state merge (-> board
                                (game/add-player @current-player "You" "red")
                                (game/add-player (first (remove #{@current-player} players)) 
-                                                  "Opponent" "blue"))))
+                                                "Opponent" "blue"))))
 
 (comment
-  (swap! board-state game/select "b" 0 2)
+  (swap! board-state game/select "f" 7 7)
   (swap! board-state game/capture-selection "f"))
 
 (defn ^:private wrap-with-selection [body {:keys [color]}]
@@ -31,9 +35,19 @@
     (game/select state player row col)
     state))
 
+(defn update-board [data]
+  (swap! board-state select-letter (:player data) (:row data) (:col data)))
+
+(defn js->ws [current-player row col]
+  (-> {:player current-player
+       :row row
+       :col col}
+      clj->js
+      js/JSON.stringify))
+
 (defn letter-box [letter row col]
   [:span {:class    "letter-box"
-          :on-click #(swap! board-state select-letter @current-player row col)}
+          :on-click #(.send @vaijoao.core/ws (js->ws @current-player row col))}
    letter])
 
 (defn ^:private fill-letter-box-with-player-gap [all-players players]
